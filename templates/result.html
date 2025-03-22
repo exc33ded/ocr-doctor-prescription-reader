@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription OCR Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        h2 {
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+        .medication {
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .med-info {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        .med-title {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .notes {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prescription OCR Results</h1>
+        
+        <div class="section">
+            <h2>Patient Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Name:</span> 
+                    <span>{{ ocr_data["Patient's full name"] }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Age:</span> 
+                    <span>{{ ocr_data["Patient's age"] }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Gender:</span> 
+                    <span>{{ ocr_data["Patient's gender"] }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Doctor Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Doctor:</span> 
+                    <span>{{ ocr_data["Doctor's full name"] }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">License Number:</span> 
+                    <span>{{ ocr_data["Doctor's license number"] }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Date:</span> 
+                    <span>{{ ocr_data["Prescription date"] }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Medications</h2>
+            {% for med in ocr_data["Medications"] %}
+            <div class="medication">
+                <div class="med-title">{{ med["Medication name"] }}</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Dosage:</span> 
+                        <span>{{ med["Dosage"] }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Frequency:</span> 
+                        <span>{{ med["Frequency"] }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Duration:</span> 
+                        <span>{{ med["Duration"] }}</span>
+                    </div>
+                </div>
+                
+                {% if med.get("Information about the medicine") or med.get("Uses") or med.get("Side effects") %}
+                <div class="med-info">
+                    {% if med.get("Information about the medicine") %}
+                    <div class="info-item">
+                        <div class="label">Information:</div>
+                        <div>{{ med["Information about the medicine"] }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if med.get("Uses") %}
+                    <div class="info-item">
+                        <div class="label">Uses:</div>
+                        <div>{{ med["Uses"] }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if med.get("Side effects") %}
+                    <div class="info-item">
+                        <div class="label">Side Effects:</div>
+                        <div>{{ med["Side effects"] }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if ocr_data.get("Additional notes") %}
+        <div class="section">
+            <h2>Additional Notes</h2>
+            <div class="notes">
+                <ul>
+                    {% for note in ocr_data["Additional notes"] %}
+                    <li>{{ note }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        <a href="{{ url_for('index') }}" class="btn">Upload Another Prescription</a>
+    </div>
+</body>
+</html>
